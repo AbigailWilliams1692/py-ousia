@@ -1,0 +1,1 @@
+from ousia.base_model.entity.entity import Entity

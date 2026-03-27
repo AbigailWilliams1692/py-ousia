@@ -1,0 +1,24 @@
+{
+  "name": "py-ousia",
+  "version": "0.1.0",
+  "description": "This Python library serves to lay out a Entity-Attribute framework which can be extended to build any concrete entity model. The primary use case would be a financial entity model.",
+  "main": "ousia",
+  "author": "",
+  "license": "MIT",
+  "python_version": ">=3.11",
+  "dependencies": [],
+  "dev_dependencies": [],
+  "scripts": {
+    "install": "pip install -e .",
+    "test": "python -m pytest",
+    "lint": "python -m flake8 ousia/",
+    "format": "python -m black ousia/"
+  },
+  "directories": {
+    "source": "ousia",
+    "tests": "tests"
+  },
+  "repository": {
+    "type": "git"
+  }
+}
