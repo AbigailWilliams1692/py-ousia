@@ -5,6 +5,7 @@
 # Import Libraries
 #############################################################
 # Standard Packages
+from datetime import date, datetime
 from typing import List, Optional, Type, Union
 
 # Third-Party Packages
@@ -50,7 +51,7 @@ class Portfolio(FinanceEntity):
             holding_timeseries (Optional[HoldingTimeSeries]): A HoldingTimeSeries object. Mutually exclusive with holding.
             benchmark (Optional[Portfolio]): A benchmark portfolio for comparison.
         Raises:
-            ValueError: If both holding and holding_timeseries are provided.
+            AttributeError: If both holding and holding_timeseries are provided.
         """
         # Initialize the parent FinanceEntity with the provided attributes
         super().__init__(*attributes)
@@ -60,7 +61,7 @@ class Portfolio(FinanceEntity):
 
         # Validate that only one of holding or holding_timeseries is provided
         if holding is not None and holding_timeseries is not None:
-            raise ValueError("Portfolio cannot have both a Holding and a HoldingTimeSeries. Provide only one.")
+            raise AttributeError("Portfolio cannot have both a Holding and a HoldingTimeSeries. Provide only one.")
         
         # Set the fields of the portfolio
         self._holding = holding
@@ -102,6 +103,20 @@ class Portfolio(FinanceEntity):
             raise TypeError(f"Expected Holding object, got {type(holding).__name__}")
         self._holding = holding
         self._holding_timeseries = None
+
+    def get_holding_value(self, asset: "Asset") -> Optional[float]:
+        """
+        Get the holding value for a specific asset.
+        
+        Args:
+            asset (Asset): The asset to get the value for.
+        
+        Returns:
+            Optional[float]: The holding value for the asset, or None if not found.
+        """
+        if self._holding is None:
+            return None
+        return self._holding.get_holding_value(asset=asset)
     
     def set_holding_value(self, asset: "Asset", value: float) -> None:
         """
@@ -112,7 +127,7 @@ class Portfolio(FinanceEntity):
             value (float): The value to set.
         """
         if self._holding is None:
-            raise ValueError("Holding not set")
+            raise AttributeError("Holding not set")
         else:
             self._holding.set_holding_value(asset=asset, value=value)
 
@@ -180,10 +195,36 @@ class Portfolio(FinanceEntity):
             holding (Holding): The Holding object to set.
         """
         if self._holding_timeseries is None:
-            raise ValueError("HoldingTimeSeries not set")
+            raise AttributeError("HoldingTimeSeries not set")
         self._holding_timeseries.set_holding_at_date(date, holding)
 
-    def get_holding_unit_at_date(self, date: datetime) -> Optional[HoldingUnit]:
+    def get_holding_value_at_date(self, dt: Union[date, datetime, pd.Timestamp]) -> Optional[float]:
+        """
+        Get the holding value at a specific date.
+        
+        Args:
+            dt (Union[date, datetime, pd.Timestamp]): The date to get the holding value for.
+        
+        Returns:
+            Optional[float]: The holding value at the specified date, or None if not found.
+        """
+        if self._holding_timeseries is None:
+            return None
+        return self._holding_timeseries.get_holding_value_at_date(dt=dt)
+
+    def set_holding_value_at_date(self, dt: Union[date, datetime, pd.Timestamp], value: float) -> None:
+        """
+        Set the holding value at a specific date.
+        
+        Args:
+            dt (Union[date, datetime, pd.Timestamp]): The date to set the holding value for.
+            value (float): The value to set.
+        """
+        if self._holding_timeseries is None:
+            raise AttributeError("HoldingTimeSeries not set")
+        self._holding_timeseries.set_holding_value_at_date(dt=dt, value=value)
+    
+    def get_holding_unit_at_date(self, dt: Union[date, datetime, pd.Timestamp]) -> Optional[HoldingUnit]:
         """
         Get the HoldingUnit at a specific date.
         
@@ -195,21 +236,7 @@ class Portfolio(FinanceEntity):
         """
         if self._holding_timeseries is None:
             return None
-        return self._holding_timeseries.get_holding_unit_at_date(date)
-    
-    def get_holding_units_at_date(self, date: datetime) -> Optional[List[HoldingUnit]]:
-        """
-        Get the HoldingUnits at a specific date.
-        
-        Args:
-            date (datetime): The date to get the HoldingUnits for.
-        
-        Returns:
-            Optional[List[HoldingUnit]]: The HoldingUnits at the specified date, or None if not found.
-        """
-        if self._holding_timeseries is None:
-            return None
-        return self._holding_timeseries.get_holding_units_at_date(date)
+        return self._holding_timeseries.get_holding_unit_at_date(dt=date)
 
     def has_holding_timeseries(self) -> bool:
         """
